@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, FC } from 'react';
-import { useJwtContext } from '@lit-protocol/vincent-sdk';
+import { reactHelpers } from '@lit-protocol/vincent-sdk';
 import { ethers } from 'ethers';
 import { LogOut, RefreshCcw } from 'lucide-react';
 
@@ -10,6 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
 import { useChain } from '@/hooks/useChain';
+
+const { useJwtContext } = reactHelpers;
 
 const formatAddress = (address: string | undefined) => {
   if (!address) return 'Loading...';

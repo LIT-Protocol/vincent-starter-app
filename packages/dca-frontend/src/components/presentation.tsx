@@ -1,5 +1,5 @@
 import { useCallback, FC } from 'react';
-import { useJwtContext } from '@lit-protocol/vincent-sdk';
+import { reactHelpers } from '@lit-protocol/vincent-sdk';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -13,6 +13,8 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Info } from '@/components/info';
 import { REDIRECT_URI } from '@/config';
+
+const { useJwtContext } = reactHelpers;
 
 export const Presentation: FC = () => {
   const { getJwtFromConsentPage } = useJwtContext();

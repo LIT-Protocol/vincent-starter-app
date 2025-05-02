@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 globalThis.Buffer = Buffer;
 
-import { JwtProvider, useJwtContext } from '@lit-protocol/vincent-sdk';
+import { reactHelpers } from '@lit-protocol/vincent-sdk';
 
 import '@/App.css';
 
@@ -9,6 +9,8 @@ import Loading from '@/components/loading';
 import { APP_ID } from '@/config';
 import { Home } from '@/pages/home';
 import { Login } from '@/pages/login';
+
+const { JwtProvider, useJwtContext } = reactHelpers;
 
 function AppContent() {
   const { authInfo, loading } = useJwtContext();

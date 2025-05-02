@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useJwtContext } from '@lit-protocol/vincent-sdk';
+import { reactHelpers } from '@lit-protocol/vincent-sdk';
 
 import { BACKEND_URL } from '@/config';
 
@@ -28,6 +28,8 @@ export interface CreateDCARequest {
   purchaseAmount: string;
   purchaseIntervalHuman: string;
 }
+
+const { useJwtContext } = reactHelpers;
 
 export const useBackend = () => {
   const { authInfo } = useJwtContext();
