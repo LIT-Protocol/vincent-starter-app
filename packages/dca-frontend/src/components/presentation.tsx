@@ -17,11 +17,11 @@ import { REDIRECT_URI } from '@/config';
 const { useJwtContext } = reactHelpers;
 
 export const Presentation: FC = () => {
-  const { getJwtFromConsentPage } = useJwtContext();
+  const { connect } = useJwtContext();
 
   const getJwt = useCallback(() => {
-    getJwtFromConsentPage(REDIRECT_URI);
-  }, [getJwtFromConsentPage]);
+    connect(REDIRECT_URI);
+  }, [connect]);
 
   return (
     <Card data-testId="presentation" className="w-full md:max-w-md bg-white p-8 shadow-sm">
