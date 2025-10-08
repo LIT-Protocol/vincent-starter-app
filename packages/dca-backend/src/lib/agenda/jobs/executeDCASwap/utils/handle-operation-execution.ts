@@ -23,6 +23,7 @@ export async function handleOperationExecution({
   let useropHash;
   if (!isSponsored) {
     txHash = operationHash;
+    await waitForTransaction({ confirmations, provider, transactionHash: txHash });
   } else {
     useropHash = operationHash;
     txHash = await waitForUserOperation({

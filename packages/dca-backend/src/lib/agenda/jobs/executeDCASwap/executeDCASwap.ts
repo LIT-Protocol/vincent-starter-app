@@ -4,6 +4,7 @@ import consola from 'consola';
 import { ethers } from 'ethers';
 
 import { IRelayPKP } from '@lit-protocol/types';
+import { AbilityAction } from '@lit-protocol/vincent-ability-uniswap-swap';
 
 import { type AppData, assertPermittedVersion } from '../jobVersion';
 import {
@@ -15,11 +16,7 @@ import {
   getUserPermittedVersion,
   handleOperationExecution,
 } from './utils';
-import {
-  getErc20ApprovalToolClient,
-  getSignedUniswapQuote,
-  getUniswapToolClient,
-} from './vincentAbilities';
+import { getSignedUniswapQuote, getUniswapAbilityClient } from './vincentAbilities';
 import { env } from '../../../env';
 import { normalizeError } from '../../../error';
 import { PurchasedCoin } from '../../../mongo/models/PurchasedCoin';
@@ -36,69 +33,22 @@ export type JobParams = {
 
 const { BASE_RPC_URL, VINCENT_APP_ID } = env;
 
-const BASE_CHAIN_ID = 8453;
 const BASE_USDC_ADDRESS = '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913';
 const BASE_WBTC_ADDRESS = '0x0555E30da8f98308EdB960aa94C0Db47230d2B9c';
-const BASE_UNISWAP_V3_ROUTER = '0x2626664c2603336E57B271c5C0b26F421741e481';
 
 const baseProvider = new ethers.providers.StaticJsonRpcProvider(BASE_RPC_URL);
 const usdcContract = getERC20Contract(BASE_USDC_ADDRESS, baseProvider);
 
-async function addUsdcApproval({
-  ethAddress,
-  usdcAmount,
-}: {
-  ethAddress: `0x${string}`;
-  usdcAmount: ethers.BigNumber;
-}): Promise<`0x${string}` | undefined> {
-  const erc20ApprovalToolClient = getErc20ApprovalToolClient();
-  const approvalParams = {
-    alchemyGasSponsor,
-    alchemyGasSponsorApiKey,
-    alchemyGasSponsorPolicyId,
-    chainId: BASE_CHAIN_ID,
-    rpcUrl: BASE_RPC_URL,
-    spenderAddress: BASE_UNISWAP_V3_ROUTER,
-    tokenAddress: BASE_USDC_ADDRESS,
-    tokenAmount: usdcAmount.mul(5).toString(), // Approve 5x the amount to spend so we don't wait for approval tx's every time we run
-  };
-  const approvalContext = {
-    delegatorPkpEthAddress: ethAddress,
-  };
-
-  // Running precheck to prevent sending approval tx if not needed or will fail
-  const approvalPrecheckResult = await erc20ApprovalToolClient.precheck(
-    approvalParams,
-    approvalContext
-  );
-  if (!approvalPrecheckResult.success) {
-    throw new Error(`ERC20 approval tool precheck failed: ${approvalPrecheckResult}`);
-  } else if (approvalPrecheckResult.result.alreadyApproved) {
-    // No need to send tx, allowance is already at that amount
-    return undefined;
-  }
-
-  // Sending approval tx
-  const approvalExecutionResult = await erc20ApprovalToolClient.execute(
-    approvalParams,
-    approvalContext
-  );
-  consola.trace('ERC20 Approval Vincent Tool Response:', approvalExecutionResult);
-  if (!approvalExecutionResult.success) {
-    throw new Error(`ERC20 approval tool execution failed: ${approvalExecutionResult}`);
-  }
-
-  return approvalExecutionResult.result.approvalTxHash as `0x${string}`;
-}
-
 async function handleSwapExecution({
   delegatorAddress,
+  pkpPublicKey,
   tokenInAddress,
   tokenInAmount,
   tokenInDecimals,
   tokenOutAddress,
 }: {
   delegatorAddress: `0x${string}`;
+  pkpPublicKey: `0x${string}`;
   tokenInAddress: `0x${string}`;
   tokenInAmount: ethers.BigNumber;
   tokenInDecimals: number;
@@ -112,27 +62,75 @@ async function handleSwapExecution({
     tokenInAmount: ethers.utils.formatUnits(tokenInAmount, tokenInDecimals),
   });
 
-  const uniswapToolClient = getUniswapToolClient();
-  const swapParams = {
-    signedUniswapQuote,
-    rpcUrlForUniswap: BASE_RPC_URL,
-  };
+  const uniswapToolClient = getUniswapAbilityClient();
   const swapContext = {
     delegatorPkpEthAddress: delegatorAddress,
   };
 
+  const approveParams = {
+    alchemyGasSponsor,
+    alchemyGasSponsorApiKey,
+    alchemyGasSponsorPolicyId,
+    signedUniswapQuote,
+    action: AbilityAction.Approve as 'approve',
+    rpcUrlForUniswap: BASE_RPC_URL,
+  };
+
+  const approvePrecheckResult = await uniswapToolClient.precheck(approveParams, swapContext);
+  consola.trace('Uniswap Approve Precheck Response:', approvePrecheckResult);
+  if (!approvePrecheckResult.success) {
+    throw new Error(`Uniswap approve precheck failed: ${approvePrecheckResult.result?.reason}`);
+  }
+
+  const approveExecutionResult = await uniswapToolClient.execute(approveParams, swapContext);
+  consola.trace('Uniswap Approve Vincent Tool Response:', approveExecutionResult);
+  if (approveExecutionResult.success === false) {
+    throw new Error(`Uniswap tool approval failed: ${approveExecutionResult.runtimeError}`);
+  }
+
+  const approveResult = approveExecutionResult.result!;
+  const approveOperationHash = (approveResult.approvalTxUserOperationHash ||
+    approveResult.approvalTxHash) as `0x${string}` | undefined;
+
+  if (approveOperationHash) {
+    consola.debug('Waiting for approval transaction to be mined...');
+    await handleOperationExecution({
+      pkpPublicKey,
+      isSponsored: alchemyGasSponsor,
+      operationHash: approveOperationHash,
+      provider: baseProvider,
+    });
+    consola.debug('Approval transaction mined successfully');
+  } else {
+    consola.debug('Approval already sufficient, no transaction needed');
+  }
+
+  const swapParams = {
+    alchemyGasSponsor,
+    alchemyGasSponsorApiKey,
+    alchemyGasSponsorPolicyId,
+    signedUniswapQuote,
+    action: AbilityAction.Swap as 'swap',
+    rpcUrlForUniswap: BASE_RPC_URL,
+  };
+
   const swapPrecheckResult = await uniswapToolClient.precheck(swapParams, swapContext);
+  consola.trace('Uniswap Swap Precheck Response:', swapPrecheckResult);
   if (!swapPrecheckResult.success) {
-    throw new Error(`Uniswap tool precheck failed: ${swapPrecheckResult}`);
+    throw new Error(`Uniswap swap precheck failed: ${swapPrecheckResult.result?.reason}`);
   }
 
   const swapExecutionResult = await uniswapToolClient.execute(swapParams, swapContext);
   consola.trace('Uniswap Swap Vincent Tool Response:', swapExecutionResult);
-  if (!swapExecutionResult.success) {
-    throw new Error(`Uniswap tool execution failed: ${swapExecutionResult}`);
+  if (swapExecutionResult.success === false) {
+    throw new Error(`Uniswap tool execution failed: ${swapExecutionResult.runtimeError}`);
   }
 
-  return swapExecutionResult.result.swapTxHash as `0x${string}`;
+  const result = swapExecutionResult.result!;
+  const operationHash = (result.swapTxUserOperationHash ||
+    result.swapTxHash) as `0x${string}`;
+
+  return operationHash;
 }
 
 export async function executeDCASwap(job: JobType, sentryScope: Sentry.Scope): Promise<void> {
@@ -200,32 +198,22 @@ export async function executeDCASwap(job: JobType, sentryScope: Sentry.Scope): P
       usdcBalance: ethers.utils.formatUnits(usdcBalance, 6),
     });
 
-    const approvalHash = await addUsdcApproval({
-      ethAddress: ethAddress as `0x${string}`,
-      usdcAmount: _purchaseAmount,
-    });
-    sentryScope.addBreadcrumb({
-      data: {
-        approvalHash,
-      },
-    });
-
-    if (approvalHash) {
-      await handleOperationExecution({
-        isSponsored: alchemyGasSponsor,
-        operationHash: approvalHash,
-        pkpPublicKey: publicKey,
-        provider: baseProvider,
-      });
-    }
-
-    const swapHash = await handleSwapExecution({
+    const swapOperationHash = await handleSwapExecution({
       delegatorAddress: ethAddress as `0x${string}`,
+      pkpPublicKey: publicKey as `0x${string}`,
       tokenInAddress: BASE_USDC_ADDRESS,
       tokenInAmount: _purchaseAmount,
       tokenInDecimals: 6,
       tokenOutAddress: BASE_WBTC_ADDRESS,
     });
+
+    const { txHash: swapHash } = await handleOperationExecution({
+      isSponsored: alchemyGasSponsor,
+      operationHash: swapOperationHash,
+      pkpPublicKey: publicKey,
+      provider: baseProvider,
+    });
+
     sentryScope.addBreadcrumb({
       data: {
         swapHash,
