@@ -9,7 +9,7 @@ This project demonstrates how to schedule and execute recurring DCA (Dollar-Cost
 - Node ^22.16.0
 - pnpm ^10.7.0
 - Docker or a local MongoDB instance
-- A Vincent App with ERC20 approval and Uniswap swap abilities
+- A Vincent App with Uniswap swap ability
 
 ## Monorepo Structure
 
@@ -21,7 +21,6 @@ This codebase is composed of three main parts:
   - Express.js API server used by the frontend
   - Agenda-based job scheduler that runs DCA jobs
   - Integration with a Vincent App to execute swaps on behalf of users
-    - Vincent ERC20 Approval ability: authorizes Uniswap to spend user tokens
     - Vincent Uniswap Swap ability: executes the actual token swaps
 
 ## Packages
@@ -45,11 +44,10 @@ To run this code and sign on behalf of your delegators, create your own Vincent 
 
 1. Go to the [Vincent Dashboard](https://dashboard.heyvincent.ai/) and log in as a builder.
 2. Create a new app similar to [wBTC DCA](https://dashboard.heyvincent.ai/user/appId/9796398001/connect).
-3. Add the ERC20 Approval ability.
-4. Add the Uniswap Swap ability.
-5. Publish the app.
-6. Once users can connect to it, configure the backend with your App ID and the delegatee private key via environment variables. You can use the Deploy on Railway button below to deploy the entire app.
-7. Once deployed, you'll need to update the `App User URL` and `Redirect URIs` to the URL deployed from Railway.
+3. Add the Uniswap Swap ability.
+4. Publish the app.
+5. Once users can connect to it, configure the backend with your App ID and the delegatee private key via environment variables. You can use the Deploy on Railway button below to deploy the entire app.
+6. Once deployed, you'll need to update the `App User URL` and `Redirect URIs` to the URL deployed from Railway.
 
 [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/UY2g5I?referralCode=iNEMKY&utm_medium=integration&utm_source=template&utm_campaign=generic)
 

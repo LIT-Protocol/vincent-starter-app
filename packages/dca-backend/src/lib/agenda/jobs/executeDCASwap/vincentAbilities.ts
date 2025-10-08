@@ -1,5 +1,4 @@
 import { LitNodeClient } from '@lit-protocol/lit-node-client';
-import { bundledVincentAbility as erc20ApprovalBundledVincentAbility } from '@lit-protocol/vincent-ability-erc20-approval';
 import {
   bundledVincentAbility as uniswapSwapBundledVincentAbility,
   getSignedUniswapQuote as getSignedUniswapQuoteAction,
@@ -29,14 +28,7 @@ export async function getSignedUniswapQuote(
   });
 }
 
-export function getErc20ApprovalToolClient() {
-  return getVincentAbilityClient({
-    bundledVincentAbility: erc20ApprovalBundledVincentAbility,
-    ethersSigner: delegateeSigner,
-  });
-}
-
-export function getUniswapToolClient() {
+export function getUniswapAbilityClient() {
   return getVincentAbilityClient({
     bundledVincentAbility: uniswapSwapBundledVincentAbility,
     ethersSigner: delegateeSigner,
