@@ -1,8 +1,9 @@
 import consola from 'consola';
 import { Types } from 'mongoose';
 
-import * as executeDCASwapJobDef from './executeDCASwap';
 import { getAgenda } from '../agendaClient';
+import { jobName } from './executeDCASwap';
+import { JobParams, JobType } from './executeDCASwap/types';
 
 interface FindSpecificScheduledJobParams {
   ethAddress: string;
@@ -18,26 +19,22 @@ export async function listJobsByEthAddress({ ethAddress }: { ethAddress: string 
 
   return (await agendaClient.jobs({
     'data.pkpInfo.ethAddress': ethAddress,
-  })) as executeDCASwapJobDef.JobType[];
+  })) as JobType[];
 }
 
-export async function findJob(
-  params: FindSpecificScheduledJobParams
-): Promise<executeDCASwapJobDef.JobType>;
-export async function findJob(
-  params: FindSpecificScheduledJobParams
-): Promise<executeDCASwapJobDef.JobType | undefined>;
+export async function findJob(params: FindSpecificScheduledJobParams): Promise<JobType>;
+export async function findJob(params: FindSpecificScheduledJobParams): Promise<JobType | undefined>;
 export async function findJob({
   ethAddress,
   mustExist,
   scheduleId,
-}: FindSpecificScheduledJobParams): Promise<executeDCASwapJobDef.JobType | undefined> {
+}: FindSpecificScheduledJobParams): Promise<JobType | undefined> {
   const agendaClient = getAgenda();
 
   const jobs = (await agendaClient.jobs({
     _id: new Types.ObjectId(scheduleId),
     'data.pkpInfo.ethAddress': ethAddress,
-  })) as executeDCASwapJobDef.JobType[];
+  })) as JobType[];
 
   logger.log(`Found ${jobs.length} jobs with ID ${scheduleId}`);
   if (mustExist && !jobs.length) {
@@ -51,7 +48,7 @@ export async function editJob({
   data,
   scheduleId,
 }: {
-  data: Omit<executeDCASwapJobDef.JobParams, 'updatedAt'>;
+  data: Omit<JobParams, 'updatedAt'>;
   scheduleId: string;
 }) {
   const {
@@ -70,7 +67,7 @@ export async function editJob({
 
   job.attrs.data = { ...data, updatedAt: new Date() };
 
-  return (await job.save()) as unknown as executeDCASwapJobDef.JobType;
+  return (await job.save()) as unknown as JobType;
 }
 
 export async function disableJob({
@@ -113,7 +110,7 @@ export async function cancelJob({
 }
 
 export async function createJob(
-  data: Omit<executeDCASwapJobDef.JobParams, 'updatedAt'>,
+  data: Omit<JobParams, 'updatedAt'>,
   options: {
     interval?: string;
     schedule?: string;
@@ -122,7 +119,7 @@ export async function createJob(
   const agenda = getAgenda();
 
   // Create a new job instance
-  const job = agenda.create<executeDCASwapJobDef.JobParams>(executeDCASwapJobDef.jobName, {
+  const job = agenda.create<JobParams>(jobName, {
     ...data,
     updatedAt: new Date(),
   });
