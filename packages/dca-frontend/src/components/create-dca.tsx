@@ -1,16 +1,7 @@
 import React, { useState, FormEvent } from 'react';
 
 import { useBackend } from '@/hooks/useBackend';
-import { Box } from '@/components/ui/box';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { DEFAULT_VALUE, InputAmount } from '@/components/input-amount';
 import { FREQUENCIES, SelectFrequency } from '@/components/select-frequency';
@@ -54,72 +45,110 @@ export const CreateDCA: React.FC<CreateDCAProps> = ({ onCreate }) => {
   };
 
   return (
-    <Card className="flex flex-col justify-between bg-white p-6 shadow-sm">
+    <div className="flex flex-col justify-between">
       <form onSubmit={handleCreateDCA}>
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Dynamic & Secure DCA on Base</CardTitle>
-          <CardDescription className="mt-2 text-gray-600">
-            This DCA agent automatically purchases wBTC with a specific amount of USDC on your
-            predefined schedule.
-            <br />
-            <br />
-            <strong>How It Works (Powered by Vincent):</strong>
-            <br />
-            Typically, building automated crypto spending agents involves trusting agent developers
-            or wallet SaaS companies for <strong>key management</strong>. Vincent enables a more
-            secure and simpler process.
-            <br />
-            <br />
-            The agent operates using permissions securely delegated by you, following strict rules
-            you establish during setup—such as authorized abilities. These onchain rules are
-            cryptographically enforced by{' '}
-            <a
-              href="https://litprotocol.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline"
+        <div className="text-center space-y-6">
+          <div className="space-y-4 text-left bg-orange-50/60 p-4 rounded-lg border border-orange-100">
+            <h3
+              className="text-sm font-semibold"
+              style={{
+                fontFamily: 'Poppins, system-ui, sans-serif',
+                color: '#FF4205',
+              }}
             >
-              Lit Protocol
-            </a>
-            , ensuring every action stays within your guardrails. With Vincent, you achieve powerful
-            automation combined with secure, permissioned execution.
-            <br />
-            <br />
-            <strong>Note:</strong> Ensure your wallet holds sufficient Base ETH for the app to
-            function smoothly.
-          </CardDescription>
-        </CardHeader>
+              How It Works (Powered by Vincent)
+            </h3>
+            <p
+              className="text-sm leading-relaxed"
+              style={{
+                fontFamily: '"Encode Sans Semi Expanded", system-ui, sans-serif',
+                color: 'var(--footer-text-color, #121212)',
+              }}
+            >
+              This DCA agent automatically purchases wBTC with a specific amount of USDC on your
+              predefined schedule.
+            </p>
+            <p
+              className="text-sm leading-relaxed"
+              style={{
+                fontFamily: '"Encode Sans Semi Expanded", system-ui, sans-serif',
+                color: 'var(--footer-text-color, #121212)',
+              }}
+            >
+              Typically, building automated crypto spending agents involves trusting agent
+              developers or wallet SaaS companies for <strong>key management</strong>. Vincent
+              enables a more secure and simpler process.
+            </p>
+            <p
+              className="text-sm leading-relaxed"
+              style={{
+                fontFamily: '"Encode Sans Semi Expanded", system-ui, sans-serif',
+                color: 'var(--footer-text-color, #121212)',
+              }}
+            >
+              The agent operates using permissions securely delegated by you, following strict rules
+              you establish during setup—such as authorized abilities. These onchain rules are
+              cryptographically enforced by{' '}
+              <a
+                href="https://litprotocol.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:opacity-80"
+                style={{ color: '#FF4205' }}
+              >
+                Lit Protocol
+              </a>
+              , ensuring every action stays within your guardrails. With Vincent, you achieve
+              powerful automation combined with secure, permissioned execution.
+            </p>
+          </div>
+
+          <div
+            className="text-sm p-3 bg-blue-50 border border-blue-200 rounded-lg text-left"
+            style={{
+              fontFamily: '"Encode Sans Semi Expanded", system-ui, sans-serif',
+              color: 'var(--footer-text-color, #121212)',
+            }}
+          >
+            <strong style={{ fontFamily: 'Poppins, system-ui, sans-serif' }}>Note:</strong> Ensure
+            your wallet holds sufficient Base ETH for the app to function smoothly.
+          </div>
+        </div>
 
         <Separator className="my-8" />
 
-        <CardContent className="my-8">
-          <Box className="space-y-4">
-            <InputAmount
-              required
-              value={purchaseAmount}
-              onChange={setPurchaseAmount}
+        <div className="my-8">
+          <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-end">
+            <div className="flex-1 min-w-0">
+              <InputAmount
+                required
+                value={purchaseAmount}
+                onChange={setPurchaseAmount}
+                disabled={loading}
+              />
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <SelectFrequency
+                required
+                value={frequency}
+                onChange={setFrequency}
+                disabled={loading}
+              />
+            </div>
+
+            <Button
+              type="submit"
+              variant="primary"
+              size="md"
               disabled={loading}
-            />
-
-            <Separator />
-
-            <SelectFrequency
-              required
-              value={frequency}
-              onChange={setFrequency}
-              disabled={loading}
-            />
-          </Box>
-        </CardContent>
-
-        <Separator className="my-8" />
-
-        <CardFooter className="flex justify-center">
-          <Button className="w-full" type="submit">
-            Create DCA
-          </Button>
-        </CardFooter>
+              className="sm:flex-shrink-0 whitespace-nowrap"
+            >
+              Create DCA →
+            </Button>
+          </div>
+        </div>
       </form>
-    </Card>
+    </div>
   );
 };

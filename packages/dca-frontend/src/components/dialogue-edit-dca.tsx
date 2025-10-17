@@ -61,8 +61,8 @@ export const DialogueEditDCA: React.FC<EditDialogProps> = ({ dca, onUpdate }) =>
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
-          <Pencil />
+        <Button variant="secondary-outline" size="sm">
+          <Pencil className="w-4 h-4" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
@@ -90,7 +90,7 @@ export const DialogueEditDCA: React.FC<EditDialogProps> = ({ dca, onUpdate }) =>
               disabled={loading}
             />
           </Box>
-          <DialogFooter>
+          <DialogFooter className="sm:justify-center">
             <Button type="submit">Save changes</Button>
           </DialogFooter>
         </form>

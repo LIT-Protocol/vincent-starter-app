@@ -1,7 +1,6 @@
 import { Input } from '@/components/ui/input';
 import React from 'react';
 
-import { Box } from '@/components/ui/box';
 import { Label } from '@/components/ui/label';
 
 export const DEFAULT_VALUE = '1.00';
@@ -20,24 +19,43 @@ export const InputAmount: React.FC<FrequencySelectProps> = ({
   required,
 }) => {
   return (
-    <Box className="py-0 gap-0 text-center">
-      <Label htmlFor="dcaAmount" className="mb-1 block text-sm font-medium">
+    <div className="flex flex-col gap-2">
+      <Label
+        htmlFor="dcaAmount"
+        className="text-sm font-medium"
+        style={{
+          fontFamily: 'Poppins, system-ui, sans-serif',
+          color: 'var(--footer-text-color, #121212)',
+        }}
+      >
         DCA Amount
       </Label>
-      <Box className="flex flex-row items-center space-x-2">
+      <div className="flex flex-row items-center gap-2">
         <Input
+          id="dcaAmount"
           required={required}
-          className="text-center"
+          className="h-10"
           type="number"
           step="0.01"
           min="0"
-          placeholder="100.00"
+          placeholder="1.00"
           value={value}
           onChange={(e) => onChange?.(e.target.value)}
           disabled={disabled}
+          style={{
+            fontFamily: '"Encode Sans Semi Expanded", system-ui, sans-serif',
+          }}
         />
-        <span className="text-sm">USD</span>
-      </Box>
-    </Box>
+        <span
+          className="text-sm font-medium whitespace-nowrap"
+          style={{
+            fontFamily: 'Poppins, system-ui, sans-serif',
+            color: 'var(--footer-text-color, #121212)',
+          }}
+        >
+          USD
+        </span>
+      </div>
+    </div>
   );
 };

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { CircleAlert } from 'lucide-react';
 
 import { Box } from '@/components/ui/box';
-import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -17,9 +16,10 @@ import { cn } from '@/lib/utils';
 
 export interface DCADetailsDialogProps {
   dca: DCA;
+  children?: React.ReactNode;
 }
 
-export const DialogueDcaFailedDetails: React.FC<DCADetailsDialogProps> = ({ dca }) => {
+export const DialogueDcaFailedDetails: React.FC<DCADetailsDialogProps> = ({ dca, children }) => {
   const [open, setOpen] = useState(false);
 
   // Format date for display
@@ -36,9 +36,11 @@ export const DialogueDcaFailedDetails: React.FC<DCADetailsDialogProps> = ({ dca 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
-          <CircleAlert color="#dc0909" />
-        </Button>
+        {children || (
+          <button className="inline-flex items-center gap-0 hover:opacity-80 cursor-pointer bg-transparent border-none p-0">
+            <CircleAlert className="w-4 h-4" color="#dc0909" />
+          </button>
+        )}
       </DialogTrigger>
       <DialogContent className={cn(failedAfterLastRun ? 'min-w-2/3' : '', 'overflow-hidden')}>
         <DialogHeader>

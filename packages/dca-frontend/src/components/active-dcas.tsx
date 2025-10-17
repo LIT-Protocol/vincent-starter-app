@@ -1,11 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Delete, Pause, Play } from 'lucide-react';
+import { CircleAlert, Delete, Pause, Play } from 'lucide-react';
 
 import { useBackend, DCA } from '@/hooks/useBackend';
-import { Box } from '@/components/ui/box';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import {
   Table,
   TableBody,
@@ -32,11 +29,47 @@ function renderDCASchedulesTable(
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Amount (USD)</TableHead>
-          <TableHead>Frequency</TableHead>
-          <TableHead>Last Update</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
+          <TableHead
+            style={{
+              fontFamily: 'Poppins, system-ui, sans-serif',
+              color: 'var(--footer-text-color, #121212)',
+            }}
+          >
+            Amount (USD)
+          </TableHead>
+          <TableHead
+            style={{
+              fontFamily: 'Poppins, system-ui, sans-serif',
+              color: 'var(--footer-text-color, #121212)',
+            }}
+          >
+            Frequency
+          </TableHead>
+          <TableHead
+            style={{
+              fontFamily: 'Poppins, system-ui, sans-serif',
+              color: 'var(--footer-text-color, #121212)',
+            }}
+          >
+            Last Update
+          </TableHead>
+          <TableHead
+            style={{
+              fontFamily: 'Poppins, system-ui, sans-serif',
+              color: 'var(--footer-text-color, #121212)',
+            }}
+          >
+            Status
+          </TableHead>
+          <TableHead
+            className="text-right"
+            style={{
+              fontFamily: 'Poppins, system-ui, sans-serif',
+              color: 'var(--footer-text-color, #121212)',
+            }}
+          >
+            Actions
+          </TableHead>
         </TableRow>
       </TableHeader>
 
@@ -56,39 +89,81 @@ function renderDCASchedulesTable(
           const active = !disabled;
           return (
             <TableRow key={uniqueKey}>
-              <TableCell>${purchaseAmount}</TableCell>
-              <TableCell>
+              <TableCell
+                style={{
+                  fontFamily: '"Encode Sans Semi Expanded", system-ui, sans-serif',
+                  color: 'var(--footer-text-color, #121212)',
+                }}
+              >
+                ${purchaseAmount}
+              </TableCell>
+              <TableCell
+                style={{
+                  fontFamily: '"Encode Sans Semi Expanded", system-ui, sans-serif',
+                  color: 'var(--footer-text-color, #121212)',
+                }}
+              >
                 {FREQUENCIES.find((freq) => freq.value === purchaseIntervalHuman)?.label ||
                   purchaseIntervalHuman}
               </TableCell>
-              <TableCell>{new Date(updatedAt).toLocaleString()}</TableCell>
-              <TableCell>
-                <span
-                  className={cn(
-                    active && !failedAfterLastRun && 'text-green-500',
-                    active && failedAfterLastRun && 'text-red-500'
-                  )}
-                >
-                  {!active ? 'Inactive' : failedAfterLastRun ? 'Failed' : 'Active'}
-                  {failedAfterLastRun && <DialogueDcaFailedDetails dca={dca} />}
-                </span>
+              <TableCell
+                style={{
+                  fontFamily: '"Encode Sans Semi Expanded", system-ui, sans-serif',
+                  color: 'var(--footer-text-color, #121212)',
+                }}
+              >
+                {new Date(updatedAt).toLocaleString()}
               </TableCell>
               <TableCell>
-                <Box className="flex flex-row items-center justify-end gap-2 p-1">
+                {failedAfterLastRun ? (
+                  <DialogueDcaFailedDetails dca={dca}>
+                    <button className="inline-flex items-center gap-2 hover:opacity-80 cursor-pointer bg-transparent border-none p-0">
+                      <span
+                        className="font-medium text-red-600"
+                        style={{
+                          fontFamily: 'Poppins, system-ui, sans-serif',
+                        }}
+                      >
+                        Failed
+                      </span>
+                      <CircleAlert className="w-4 h-4" color="#dc0909" />
+                    </button>
+                  </DialogueDcaFailedDetails>
+                ) : (
+                  <span
+                    className={cn(
+                      'font-medium',
+                      active && 'text-green-600',
+                      !active && 'text-gray-500'
+                    )}
+                    style={{
+                      fontFamily: 'Poppins, system-ui, sans-serif',
+                    }}
+                  >
+                    {!active ? 'Inactive' : 'Active'}
+                  </span>
+                )}
+              </TableCell>
+              <TableCell>
+                <div className="flex flex-row items-center justify-end gap-2">
                   <DialogueEditDCA dca={dca} onUpdate={handleUpdatedDCA} />
                   {active ? (
-                    <Button variant="destructive" onClick={() => handleDisableDCA(dca._id)}>
-                      <Pause />
+                    <Button
+                      variant="secondary-outline"
+                      size="sm"
+                      onClick={() => handleDisableDCA(dca._id)}
+                    >
+                      <Pause className="w-4 h-4" />
                     </Button>
                   ) : (
-                    <Button variant="default" onClick={() => handleEnableDCA(dca._id)}>
-                      <Play />
+                    <Button variant="primary" size="sm" onClick={() => handleEnableDCA(dca._id)}>
+                      <Play className="w-4 h-4" />
                     </Button>
                   )}
-                  <Button variant="destructive" onClick={() => handleDeleteDCA(dca._id)}>
-                    <Delete />
+                  <Button variant="destructive" size="sm" onClick={() => handleDeleteDCA(dca._id)}>
+                    <Delete className="w-4 h-4" />
                   </Button>
-                </Box>
+                </div>
               </TableCell>
             </TableRow>
           );
@@ -126,7 +201,16 @@ function renderContent(
       handleDeleteDCA
     );
   } else {
-    return <div className="flex justify-center">No active DCAs</div>;
+    return (
+      <div
+        className="flex justify-center"
+        style={{
+          fontFamily: '"Encode Sans Semi Expanded", system-ui, sans-serif',
+        }}
+      >
+        No active DCAs
+      </div>
+    );
   }
 }
 
@@ -212,23 +296,15 @@ export const ActiveDcas: React.FC = () => {
   );
 
   return (
-    <Card data-test-id="active-dcas" className="w-full bg-white p-6 shadow-md">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold">Active DCA Schedules</CardTitle>
-      </CardHeader>
-
-      <Separator />
-
-      <CardContent>
-        {renderContent(
-          activeDCAs,
-          isLoading,
-          handleUpdatedDCA,
-          handleDisableDCA,
-          handleEnableDCA,
-          handleDeleteDCA
-        )}
-      </CardContent>
-    </Card>
+    <div data-test-id="active-dcas" className="w-full">
+      {renderContent(
+        activeDCAs,
+        isLoading,
+        handleUpdatedDCA,
+        handleDisableDCA,
+        handleEnableDCA,
+        handleDeleteDCA
+      )}
+    </div>
   );
 };

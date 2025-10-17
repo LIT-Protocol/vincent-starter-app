@@ -4,10 +4,8 @@ import { Presentation } from '@/components/presentation';
 
 export const Login: React.FC = () => {
   return (
-    <div
-      className={'flex flex-col items-center justify-center min-h-screen min-w-screen bg-gray-100'}
-    >
+    <main className="relative px-4 sm:px-6 md:px-8 flex justify-center pt-8 sm:pt-16 md:pt-24 pb-8">
       <Presentation />
-    </div>
+    </main>
   );
 };
