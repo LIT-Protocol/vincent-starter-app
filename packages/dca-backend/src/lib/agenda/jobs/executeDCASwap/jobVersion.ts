@@ -1,15 +1,24 @@
 import { major } from 'semver';
 
 import { SupportedJobVersions } from './types';
+import { env } from '../../../env';
+
+const { ENABLE_APP_VERSIONING } = env;
 
 /**
  * AppVersion is the numeric, incremental app version that is assigned each time you create/publish
  * a new Vincent App Version jobAPIVersion is an internal concept to this application; if the code
  * needed to execute jobs for your app changes enough between appVersions to make it necessary to
  * have different code paths to handle the new appVersion then a new jobVersion would be indicated.
- * See `dcaSwapJobManager.ts` for an example of how this works for the Vincent wBTC DCA app
+ * See `packages/dca-backend/src/lib/agenda/jobs/executeDCASwap/index.ts` for an example of how this
+ * works for the Vincent wBTC DCA app
  */
 export function getJobAPIVersionFromVincentAppVersion(appVersion: number): string {
+  // Unless custom versioning is enabled, we assume we should support the most recent version of the uniswap ability
+  if (!ENABLE_APP_VERSIONING) {
+    return '2.0.0';
+  }
+
   if (appVersion <= 3) {
     return '1.0.0';
   }

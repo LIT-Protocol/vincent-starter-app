@@ -30,6 +30,7 @@ export const env = createEnv({
     CHRONICLE_YELLOWSTONE_RPC: z.string().url().default(LIT_RPC.CHRONICLE_YELLOWSTONE),
     CORS_ALLOWED_DOMAIN: z.string().url(),
     DEFAULT_TX_CONFIRMATIONS: z.coerce.number().default(6),
+    ENABLE_APP_VERSIONING: z.boolean().optional().default(false),
     IS_DEVELOPMENT: BooleanOrBooleanStringSchema,
     MONGODB_URI: z.string().url(),
     PORT: z.coerce.number(),
