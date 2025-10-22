@@ -51,6 +51,17 @@ To run this code and sign on behalf of your delegators, create your own Vincent 
 
 [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/UY2g5I?referralCode=iNEMKY&utm_medium=integration&utm_source=template&utm_campaign=generic)
 
+## Handling Multiple Vincent App Versions
+
+This repository is deployed as the [Vincent wBTC DCA App](https://dashboard.heyvincent.ai/explorer/appId/9796398001). The production app is a good example of how you might handle multiple versions of the same app, where some versions may rely on different abilities, or on different versions of the same ability.
+
+Note that the default configuration of this repository will use the latest version of the Uniswap Swap ability, but you can see an example of how to use different versions of the same ability in the [dca-backend](./packages/dca-backend/src/lib/agenda/jobs/executeDCASwap) package.
+
+If you want to modify the app version specific logic for your own app and enable it, you will need to:
+
+1. Modify the `getJobAPIVersionFromVincentAppVersion()` function in the [jobVersion.ts](./packages/dca-backend/src/lib/agenda/jobs/executeDCASwap/jobVersion.ts) file appropriately for your app.
+2. Set `ENABLE_APP_VERSIONING` env var to `true` to enable the per-app version logic.
+
 ## Quick Start
 
 Install dependencies and build the packages (works for both local and production setups):

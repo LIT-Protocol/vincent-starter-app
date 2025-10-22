@@ -19,6 +19,10 @@ const { BASE_RPC_URL, VINCENT_APP_ID } = env;
 const baseProvider = new ethers.providers.StaticJsonRpcProvider(BASE_RPC_URL);
 const usdcContract = getERC20Contract(BASE_USDC_ADDRESS, baseProvider);
 
+// The mapping of job API versions to their handlers is here as an example, and is how the live production
+// `Vincent wBTC DCA` app manages its jobs.
+// This repository will always use `2` unless you enable versioning by setting the `ENABLE_APP_VERSIONING` env var
+// Note that if you do enable app versioning, you will need to update `getJobAPIVersionFromVincentAppVersion()` accordingly.
 const jobHandlerByApiVersion: Record<SupportedJobVersions, JobHandler> = {
   1: executeDCASwapV1,
   2: executeDCASwapV2,
