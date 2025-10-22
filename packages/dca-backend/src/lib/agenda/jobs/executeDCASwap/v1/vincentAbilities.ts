@@ -3,20 +3,19 @@ import { bundledVincentAbility as erc20ApprovalBundledVincentAbility } from '@li
 import {
   bundledVincentAbility as uniswapSwapBundledVincentAbility,
   getSignedUniswapQuote as getSignedUniswapQuoteAction,
-  QuoteParams,
-} from '@lit-protocol/vincent-ability-uniswap-swap';
+} from '@lit-protocol/vincent-ability-uniswap-swap-v5';
 import { getVincentAbilityClient } from '@lit-protocol/vincent-app-sdk/abilityClient';
 
-import { delegateeSigner } from './utils/signer';
+import { delegateeSigner } from '../utils/signer';
+
+import type { QuoteParams } from '@lit-protocol/vincent-ability-uniswap-swap-v5';
 
 const litNodeClient = new LitNodeClient({
   debug: true,
   litNetwork: 'datil',
 });
 
-export async function getSignedUniswapQuote(
-  quoteParams: QuoteParams
-): Promise<ReturnType<typeof getSignedUniswapQuoteAction>> {
+export async function getSignedUniswapQuote(quoteParams: QuoteParams) {
   // Ensure litNodeClient is connected
   if (!litNodeClient.ready) {
     await litNodeClient.connect();
@@ -29,14 +28,14 @@ export async function getSignedUniswapQuote(
   });
 }
 
-export function getErc20ApprovalToolClient() {
+export async function getErc20ApprovalToolClient() {
   return getVincentAbilityClient({
     bundledVincentAbility: erc20ApprovalBundledVincentAbility,
     ethersSigner: delegateeSigner,
   });
 }
 
-export function getUniswapToolClient() {
+export async function getUniswapToolClient() {
   return getVincentAbilityClient({
     bundledVincentAbility: uniswapSwapBundledVincentAbility,
     ethersSigner: delegateeSigner,

@@ -1,8 +1,8 @@
 import { ethers } from 'ethers';
 
-import { waitForTransaction } from './wait-for-transaction';
-import { waitForUserOperation } from './wait-for-user-operation';
 import { env } from '../../../../env';
+import { waitForTransaction } from '../utils/wait-for-transaction';
+import { waitForUserOperation } from '../utils/wait-for-user-operation';
 
 const { DEFAULT_TX_CONFIRMATIONS } = env;
 
@@ -23,7 +23,6 @@ export async function handleOperationExecution({
   let useropHash;
   if (!isSponsored) {
     txHash = operationHash;
-    await waitForTransaction({ confirmations, provider, transactionHash: txHash });
   } else {
     useropHash = operationHash;
     txHash = await waitForUserOperation({
