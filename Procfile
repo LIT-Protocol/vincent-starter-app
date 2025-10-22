@@ -1,1 +1,1 @@
-web: cd packages/dca-backend && pnpm start
+worker: cd packages/dca-backend && pnpm startWorker
